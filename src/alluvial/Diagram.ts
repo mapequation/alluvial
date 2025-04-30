@@ -1,3 +1,4 @@
+import { sum } from "d3";
 import type { NetworkFile } from "../components/LoadNetworks";
 import differenceIndex from "../utils/difference-index";
 import Tree from "../utils/Tree";
@@ -21,6 +22,7 @@ export interface LayoutOpts {
   flowThreshold: number;
   verticalAlign: VerticalAlign;
   marginExponent: number;
+  topMarginFraction: number;
   moduleSize: ModuleSize;
   sortModulesBy: ModuleOrder;
 }
@@ -131,6 +133,7 @@ export default class Diagram extends AlluvialNodeBase<Network> {
     moduleWidth,
     flowThreshold,
     marginExponent,
+    topMarginFraction,
     verticalAlign = "bottom",
     moduleSize = "flow",
     sortModulesBy = "flow",
@@ -163,6 +166,8 @@ export default class Diagram extends AlluvialNodeBase<Network> {
     let getNodeSize: GetNodeSize | null = null;
     let moduleHeight = 0;
     let moduleMargin = 0;
+    let numModulesByDepth = new Map<number, number>();
+    let moduleSizeByDepth = new Map<number, number>();
 
     // Use first pass to get order of modules to sort streamlines in second pass
     // Y position of modules will be tuned in second pass depending on max margins
@@ -204,6 +209,30 @@ export default class Diagram extends AlluvialNodeBase<Network> {
 
           if (i > 0) x += networkWidth;
           y = height;
+
+          numModulesByDepth = new Map<number, number>();
+          visibleModules.forEach((module, j) => {
+            const depth = module.path.length - 1;
+            numModulesByDepth.set(depth, (numModulesByDepth.get(depth) ?? 0) + 1);
+            // Add an expanded module to the  margin for all but last module at depth
+            if (j < visibleModules.length - 1) {
+              const diffIndex = differenceIndex(module.path, visibleModules[j + 1].path);
+              if (diffIndex < module.path.length - 1) {
+                numModulesByDepth.set(diffIndex, (numModulesByDepth.get(diffIndex) ?? 0) + 1);
+              }
+            }
+          });
+          moduleSizeByDepth = new Map<number, number>();
+          // node.children.forEach((module) => {
+          visibleModules.forEach((module) => {
+            let depth = module.path.length - 1;
+            const size = getNodeSize!(module);
+            while (depth >= 0) {
+              moduleSizeByDepth.set(depth, (moduleSizeByDepth.get(depth) ?? 0) + size);
+              --depth;
+            }
+          });
+
         } else if (node instanceof Module && getNodeSize) {
           node.children.sort((a: HighlightGroup, b: HighlightGroup) => {
             // Insignificant nodes always at the top
@@ -212,14 +241,29 @@ export default class Diagram extends AlluvialNodeBase<Network> {
             // FIXME highlight indices might not be sorted
             return a.highlightIndex - b.highlightIndex;
           });
-          const margin =
-            i + 1 < nodes.length
-              ? 2 **
-                (marginExponent -
-                  2 * differenceIndex(node.path, nodes[i + 1].path))
-              : 0;
+          // let margin =
+          //   i + 1 < nodes.length
+          //     ? 2 **
+          //     (marginExponent -
+          //       2 * differenceIndex(node.path, nodes[i + 1].path))
+          //     : 0;
           const nodeSize = getNodeSize(node);
           moduleHeight = nodeSize * height;
+
+          let margin = 0;
+          if (i + 1 === nodes.length) {
+            margin = 0;
+          } else {
+            const diffIndex = differenceIndex(node.path, nodes[i + 1].path);
+            const numVisibleModulesAtSameDepth = numModulesByDepth.get(diffIndex) ?? 1;
+            if (numVisibleModulesAtSameDepth <= 1) {
+              margin = 0;
+            } else {
+              margin = height * (moduleSizeByDepth.get(diffIndex) ?? 0) * topMarginFraction / (numVisibleModulesAtSameDepth - 1);
+            }
+            // console.log("path:", node.path.join(','), "margin:", margin, "diffIndex:", diffIndex, "siblings:", numVisibleModulesAtSameDepth, "moduleSize:", moduleSizeByDepth.get(diffIndex));
+          }
+
           y -= moduleHeight;
           node.margin = margin;
           node.layout = { x, y, width: moduleWidth, height: moduleHeight };
@@ -241,59 +285,61 @@ export default class Diagram extends AlluvialNodeBase<Network> {
       }
     );
 
-    const maxTotalMargin = Math.max(...totalMargins);
-    let usableHeight = height - maxTotalMargin;
+    const usableHeight = height * (1 - topMarginFraction);// - sum(totalMargins);
 
-    const maxMarginFractionOfHeight = 0.2;
-    const marginFractionOfHeight = maxTotalMargin / height;
+    // const maxTotalMargin = Math.max(...totalMargins);
+    // let usableHeight = height - maxTotalMargin;
 
-    if (marginFractionOfHeight > maxMarginFractionOfHeight) {
-      // Reduce margins to below 50% of vertical space
-      // Use moduleMarginScale such that
-      //   moduleMarginScale * maxTotalMargin / height == maxMarginFractionOfHeight
-      const moduleMarginScale =
-        (maxMarginFractionOfHeight * height) / maxTotalMargin;
+    // const maxMarginFractionOfHeight = 0.2;
+    // const marginFractionOfHeight = maxTotalMargin / height;
 
-      this.forEachDepthFirstWhile(
-        (node: any) => node.depth <= Depth.MODULE,
-        (node: any) => {
-          if (node instanceof Module) {
-            node.margin *= moduleMarginScale;
-          }
-        }
-      );
+    // if (marginFractionOfHeight > maxMarginFractionOfHeight) {
+    //   // Reduce margins to below 50% of vertical space
+    //   // Use moduleMarginScale such that
+    //   //   moduleMarginScale * maxTotalMargin / height == maxMarginFractionOfHeight
+    //   const moduleMarginScale =
+    //     (maxMarginFractionOfHeight * height) / maxTotalMargin;
 
-      const scaledTotalMargin = maxTotalMargin * moduleMarginScale;
-      usableHeight = height - scaledTotalMargin;
-    }
+    //   this.forEachDepthFirstWhile(
+    //     (node: any) => node.depth <= Depth.MODULE,
+    //     (node: any) => {
+    //       if (node instanceof Module) {
+    //         node.margin *= moduleMarginScale;
+    //       }
+    //     }
+    //   );
 
-    if (verticalAlign === "justify") {
-      let totalMargin = maxTotalMargin;
-      let visibleFlow = Math.max(...visibleFlows);
-      let missingFlow = 0;
-      let missingMargin = 0;
-      let numMargins = 0;
+    //   const scaledTotalMargin = maxTotalMargin * moduleMarginScale;
+    //   usableHeight = height - scaledTotalMargin;
+    // }
 
-      this.forEachDepthFirstWhile(
-        (node: any) =>
-          node.depth < Depth.MODULE ||
-          (node instanceof Module && node.isVisible),
-        (node: any, i: number) => {
-          if (node instanceof Network) {
-            totalMargin = totalMargins[i];
-            numMargins = visibleModules[i] - 1;
-            visibleFlow = visibleFlows[i];
-            missingFlow = 1 - visibleFlow;
-            missingMargin = missingFlow * usableHeight;
-          } else if (node instanceof Module && node.margin > 0) {
-            node.margin *= maxTotalMargin / totalMargin;
-            if (numMargins > 0) {
-              node.margin += missingMargin / numMargins;
-            }
-          }
-        }
-      );
-    } // "justify"
+    // if (verticalAlign === "justify") {
+    //   let totalMargin = maxTotalMargin;
+    //   let visibleFlow = Math.max(...visibleFlows);
+    //   let missingFlow = 0;
+    //   let missingMargin = 0;
+    //   let numMargins = 0;
+
+    //   this.forEachDepthFirstWhile(
+    //     (node: any) =>
+    //       node.depth < Depth.MODULE ||
+    //       (node instanceof Module && node.isVisible),
+    //     (node: any, i: number) => {
+    //       if (node instanceof Network) {
+    //         totalMargin = totalMargins[i];
+    //         numMargins = visibleModules[i] - 1;
+    //         visibleFlow = visibleFlows[i];
+    //         missingFlow = 1 - visibleFlow;
+    //         missingMargin = missingFlow * usableHeight;
+    //       } else if (node instanceof Module && node.margin > 0) {
+    //         node.margin *= maxTotalMargin / totalMargin;
+    //         if (numMargins > 0) {
+    //           node.margin += missingMargin / numMargins;
+    //         }
+    //       }
+    //     }
+    //   );
+    // } // "justify"
 
     this.forEachDepthFirstWhile(
       (node: any) => node.depth <= Depth.BRANCH,

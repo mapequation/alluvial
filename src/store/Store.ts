@@ -36,6 +36,7 @@ export class Store {
   height: number = 600;
   duration: number = 0.2;
   marginExponent: number = 4;
+  topMarginFraction: number = 0.2;
   moduleWidth: number = 80;
   streamlineFraction: number = 2;
   streamlineThreshold: number = 1;
@@ -84,6 +85,7 @@ export class Store {
       height: observable,
       duration: observable,
       marginExponent: observable,
+      topMarginFraction: observable,
       moduleWidth: observable,
       streamlineFraction: observable,
       streamlineThreshold: observable,
@@ -185,6 +187,11 @@ export class Store {
 
   setMarginExponent = action((marginExponent: number) => {
     this.marginExponent = marginExponent;
+    this.updateLayout();
+  });
+
+  setTopMarginFraction = action((topMarginFraction: number) => {
+    this.topMarginFraction = topMarginFraction;
     this.updateLayout();
   });
 
@@ -597,7 +604,7 @@ export class Store {
       } else {
         const color =
           this.selectedScheme[
-            moduleIdColorMap.size % this.selectedScheme.length
+          moduleIdColorMap.size % this.selectedScheme.length
           ];
         moduleIdColorMap.set(module.moduleId, color);
         const highlightIndex = this.getHighlightIndex(color);
@@ -658,7 +665,7 @@ export class Store {
             if (!layerIdColorMap.has(node.layerId)) {
               let color =
                 this.selectedScheme[
-                  layerIdColorMap.size % this.selectedScheme.length
+                layerIdColorMap.size % this.selectedScheme.length
                 ];
               layerIdColorMap.set(node.layerId, color);
             }
@@ -684,7 +691,7 @@ export class Store {
             if (!physicalIdColorMap.has(node.nodeId)) {
               let color =
                 this.selectedScheme[
-                  physicalIdColorMap.size % this.selectedScheme.length
+                physicalIdColorMap.size % this.selectedScheme.length
                 ];
               physicalIdColorMap.set(node.nodeId, color);
             }

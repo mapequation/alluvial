@@ -53,13 +53,22 @@ export default observer(function Layout() {
         valueLabelFormat={(value: number) => Math.round(value * 100) + "%"}
         onChange={store.setStreamlineFraction}
       />
-      <Slider
+      {/* <Slider
         label="Module top margin"
         value={store.marginExponent}
         min={-1}
         max={6}
         valueLabelFormat={(value: number) => 2 ** (value - 1)}
         onChange={store.setMarginExponent}
+      /> */}
+      <Slider
+        label="Module vertical gap"
+        value={store.topMarginFraction * 100}
+        min={0}
+        max={90}
+        valueLabelFormat={(value: number) => value + "%"}
+        step={1}
+        onChange={(value: number) => store.setTopMarginFraction(value / 100)}
       />
       <Slider
         label="Visible flow"
