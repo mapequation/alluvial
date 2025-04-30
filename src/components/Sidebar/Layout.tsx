@@ -60,6 +60,7 @@ export default observer(function Layout() {
         max={6}
         valueLabelFormat={(value: number) => 2 ** (value - 1)}
         onChange={store.setMarginExponent}
+        isDisabled={store.zeroMargins}
       />
       <Slider
         label="Visible flow"
@@ -156,6 +157,11 @@ export default observer(function Layout() {
           onChange={store.setShowBipartiteNodes}
         />
       )}
+      <Switch
+        label="Zero vertical gaps"
+        isChecked={store.zeroMargins}
+        onChange={store.setZeroMargins}
+      />
       <Switch
         label="Bottom align"
         isChecked={store.verticalAlign === "bottom"}

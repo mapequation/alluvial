@@ -21,6 +21,7 @@ export interface LayoutOpts {
   flowThreshold: number;
   verticalAlign: VerticalAlign;
   marginExponent: number;
+  zeroMargins: boolean;
   moduleSize: ModuleSize;
   sortModulesBy: ModuleOrder;
 }
@@ -131,6 +132,7 @@ export default class Diagram extends AlluvialNodeBase<Network> {
     moduleWidth,
     flowThreshold,
     marginExponent,
+    zeroMargins,
     verticalAlign = "bottom",
     moduleSize = "flow",
     sortModulesBy = "flow",
@@ -213,10 +215,10 @@ export default class Diagram extends AlluvialNodeBase<Network> {
             return a.highlightIndex - b.highlightIndex;
           });
           const margin =
-            i + 1 < nodes.length
+            i + 1 < nodes.length && !zeroMargins
               ? 2 **
-                (marginExponent -
-                  2 * differenceIndex(node.path, nodes[i + 1].path))
+              (marginExponent -
+                2 * differenceIndex(node.path, nodes[i + 1].path))
               : 0;
           const nodeSize = getNodeSize(node);
           moduleHeight = nodeSize * height;
@@ -244,14 +246,14 @@ export default class Diagram extends AlluvialNodeBase<Network> {
     const maxTotalMargin = Math.max(...totalMargins);
     let usableHeight = height - maxTotalMargin;
 
-    const maxMarginFractionOfHeight = 0.2;
+    const maxMarginFractionOfHeight = zeroMargins ? 0 : 0.2;
     const marginFractionOfHeight = maxTotalMargin / height;
 
     if (marginFractionOfHeight > maxMarginFractionOfHeight) {
       // Reduce margins to below 50% of vertical space
       // Use moduleMarginScale such that
       //   moduleMarginScale * maxTotalMargin / height == maxMarginFractionOfHeight
-      const moduleMarginScale =
+      const moduleMarginScale = zeroMargins ? 0 :
         (maxMarginFractionOfHeight * height) / maxTotalMargin;
 
       this.forEachDepthFirstWhile(
