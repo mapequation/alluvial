@@ -1,0 +1,62 @@
+import { motion } from "framer-motion";
+import { SVGProps } from "react";
+import { normalize } from "@mapequation/alluvial-diagram";
+import type { NetworkFile } from "@mapequation/alluvial-diagram";
+
+export default function Background({
+  file: { flowDistribution },
+  fill,
+  ...props
+}: {
+  file: NetworkFile;
+  fill: string;
+} & SVGProps<SVGSVGElement>) {
+  const flow = flowDistribution ?? { 0: 1 };
+
+  const minFlow = 1e-4;
+
+  const values = normalize(
+    Array.from(Object.values(flow))
+      .filter((flow) => flow > minFlow)
+      .sort()
+  );
+
+  const height = 300;
+
+  const margin = values.length < 10 ? 10 : 100 / values.length;
+
+  const usableHeight = Math.max(
+    0,
+    values.length < 2 ? height : height - margin * (values.length - 1)
+  );
+
+  let prevY = 0;
+
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 150 300"
+      preserveAspectRatio="none"
+      {...props}
+    >
+      <g fill={fill}>
+        {values.map((flow, i) => {
+          const y = prevY;
+          const height = flow * usableHeight;
+          prevY += height + margin;
+          return (
+            <motion.rect
+              key={i}
+              x={0}
+              width={150}
+              initial={{ y: 300, height: 0 }}
+              animate={{ y, height }}
+              transition={{ duration: 0.1, bounce: 0 }}
+            />
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
