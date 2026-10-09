@@ -1,6 +1,6 @@
 {
   "name": "@mapequation/alluvial-diagram",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Interactive alluvial diagram visualization for hierarchical networks.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
