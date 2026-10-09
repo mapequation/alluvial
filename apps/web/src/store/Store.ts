@@ -9,7 +9,7 @@ import {
   Side,
 } from "@mapequation/alluvial-diagram";
 import type { NetworkFile, Real } from "@mapequation/alluvial-diagram";
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, observableRef } from "mobx";
 import { createContext } from "react";
 import type { Histogram } from "../components/Sidebar/Metadata/Real";
 import BipartiteGraph from "./BipartiteGraph";
@@ -28,9 +28,9 @@ export class Store extends DiagramStore {
     this.highlightColors = [...this.selectedScheme];
 
     makeObservable(this, {
-      files: observable.ref,
+      files: observableRef,
       numNetworks: observable,
-      selectedScheme: observable.ref,
+      selectedScheme: observableRef,
       selectedSchemeName: observable,
     });
   }

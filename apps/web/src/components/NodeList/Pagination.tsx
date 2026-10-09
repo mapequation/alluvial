@@ -1,13 +1,19 @@
 import { ButtonGroup, Flex, IconButton } from "@chakra-ui/react";
-import type { Table } from "@tanstack/react-table";
+import type { ReactTable } from "@tanstack/react-table";
+import type { LeafNode } from "@mapequation/alluvial-diagram";
 import {
   HiOutlineChevronDoubleLeft,
   HiOutlineChevronDoubleRight,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
 } from "react-icons/hi";
+import type { features } from "./table";
 
-export default function Pagination<T>({ instance }: { instance: Table<T> }) {
+export default function Pagination({
+  instance,
+}: {
+  instance: ReactTable<typeof features, LeafNode>;
+}) {
   return (
     <Flex align="center" mt={4}>
       <ButtonGroup attached mr={4} size="sm">
@@ -40,7 +46,7 @@ export default function Pagination<T>({ instance }: { instance: Table<T> }) {
           <HiOutlineChevronDoubleRight />
         </IconButton>
       </ButtonGroup>
-      Page {instance.getState().pagination.pageIndex + 1} of{" "}
+      Page {instance.state.pagination.pageIndex + 1} of{" "}
       {instance.getPageCount()}
     </Flex>
   );

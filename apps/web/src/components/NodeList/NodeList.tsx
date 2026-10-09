@@ -7,15 +7,11 @@ import {
 } from "@chakra-ui/react";
 import {
   flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
+  ColumnVisibilityState,
   PaginationState,
   RowSelectionState,
   SortingState,
-  useReactTable,
-  VisibilityState,
+  useTable,
 } from "@tanstack/react-table";
 import FileSaver from "file-saver";
 import { observer } from "mobx-react";
@@ -37,7 +33,7 @@ import {
 } from "../ui/dialog";
 import { toaster } from "../ui/toaster";
 import Pagination from "./Pagination";
-import { columns } from "./table";
+import { columns, features } from "./table";
 
 export default observer(function NodeList({
   onClose,
@@ -66,8 +62,8 @@ export default observer(function NodeList({
   const [rowSelection, onRowSelectionChange] = useState<RowSelectionState>({});
 
   const [columnVisibility, onColumnVisibilityChange] =
-    useState<VisibilityState>(() => {
-      const state: VisibilityState = {};
+    useState<ColumnVisibilityState>(() => {
+      const state: ColumnVisibilityState = {};
       if (data.length === 0) return state;
       const first = data[0];
       if (first.stateId == null) state["stateId"] = false;
@@ -75,7 +71,8 @@ export default observer(function NodeList({
       return state;
     });
 
-  const instance = useReactTable<LeafNode>({
+  const instance = useTable({
+    features,
     data,
     columns,
     state: { pagination, sorting, rowSelection, columnVisibility },
@@ -83,10 +80,6 @@ export default observer(function NodeList({
     onSortingChange,
     onRowSelectionChange,
     onColumnVisibilityChange,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   });
 
   const [search, setSearch] = useState("");
