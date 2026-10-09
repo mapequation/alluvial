@@ -1,12 +1,38 @@
 import { Checkbox } from "@chakra-ui/react";
-import { createColumnHelper } from "@tanstack/react-table";
+import {
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createColumnHelper,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFn_includesString,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFns,
+  tableFeatures,
+} from "@tanstack/react-table";
 import type { LeafNode } from "@mapequation/alluvial-diagram";
 import Name from "./Name";
 import Path from "./Path";
 
-const columnHelper = createColumnHelper<LeafNode>();
+export const features = tableFeatures({
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  filterFns: { includesString: filterFn_includesString },
+  sortFns,
+  filteredRowModel: createFilteredRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+});
 
-export const columns = [
+const columnHelper = createColumnHelper<typeof features, LeafNode>();
+
+export const columns = columnHelper.columns([
   columnHelper.display({
     id: "selection",
     header: ({ table }) => (
@@ -65,4 +91,4 @@ export const columns = [
     header: "Flow",
     cell: (props) => props.getValue().toPrecision(3),
   }),
-];
+]);

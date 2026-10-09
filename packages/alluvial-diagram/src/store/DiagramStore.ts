@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, observableRef } from "mobx";
 import { createContext, useContext } from "react";
 import {
   Diagram,
@@ -63,7 +63,7 @@ export class DiagramStore {
 
   constructor() {
     makeObservable(this, {
-      diagram: observable.ref,
+      diagram: observableRef,
       identifier: observable,
       updateFlag: observable,
       height: observable,

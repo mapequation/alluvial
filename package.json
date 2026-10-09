@@ -1,6 +1,6 @@
 {
   "name": "alluvial-monorepo",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -17,7 +17,7 @@
     "test:watch": "npm run test:watch -w apps/web"
   },
   "devDependencies": {
-    "prettier": "^2.4.1",
-    "typescript": "^6.0.3"
+    "prettier": "^3.9.9",
+    "typescript": "^7.0.2"
   }
 }

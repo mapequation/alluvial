@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.2](https://github.com/mapequation/alluvial/compare/v1.14.1...v1.14.2) (2026-10-09)
+
+
+### Bug Fixes
+
+* Don't duplicate dangling streamline nodes ([#42](https://github.com/mapequation/alluvial/issues/42)) ([d1964fc](https://github.com/mapequation/alluvial/commit/d1964fc47ffb5a6cb7fb07d89867f69781749efb))
+* Make "Visible flow" hide a fraction of each network's flow ([#43](https://github.com/mapequation/alluvial/issues/43)) ([11ea432](https://github.com/mapequation/alluvial/commit/11ea4327c0b29dfb00cef958503c3d0e8db9f3de))
+
+### [1.14.1](https://github.com/mapequation/alluvial/compare/v1.14.0...v1.14.1) (2026-05-16)
+
+
+### Features
+
+* Add "Mural" color scheme ([c2feeba](https://github.com/mapequation/alluvial/commit/c2feebaae8fe6422339c2bd3d8b9c8e720219f22))
+* Add seaborn flare and crest colors ([f7115b2](https://github.com/mapequation/alluvial/commit/f7115b294af074a1d7af2df08952fc7a01003d7a))
+* Color node names in node list ([768ae2d](https://github.com/mapequation/alluvial/commit/768ae2d42762f8f7fc1580b57a56eeb2bff574bc))
+* Read node colors from json files ([40d9833](https://github.com/mapequation/alluvial/commit/40d9833e1544c1e7e22ca2a49f22df7181a1ef0d))
+* Sort modules by node id ([968f647](https://github.com/mapequation/alluvial/commit/968f647a4333d3a9e59059e79f999694cfea2de1))
+* Toggle show bipartite nodes ([ec1b50b](https://github.com/mapequation/alluvial/commit/ec1b50b3f26f3e3572cd28c2c62b03bb1db2bbbd))
+* Toggle zero vertical module gaps ([be04013](https://github.com/mapequation/alluvial/commit/be040138ede3c90e78c9486214594e8350ea8d8b))
+* Use example data from paper ([b0f5081](https://github.com/mapequation/alluvial/commit/b0f5081143213f34f883aa1357d6a6b866cc1b27))
+
+
+### Bug Fixes
+
+* Debounce node list search ([d51c754](https://github.com/mapequation/alluvial/commit/d51c7543e48b556286ba50cb4f3a2019b97ef900))
+* Decrease minimum module top margin ([4c2853f](https://github.com/mapequation/alluvial/commit/4c2853f7df595d170d9e3b74944d8f08f109e3ed))
+* Nicer num nodes display ([bda44ab](https://github.com/mapequation/alluvial/commit/bda44ab7db0114673541dc73f2e98d8c1cb1349f))
+* Only show Infomap online clear action when there are available files ([560dd8b](https://github.com/mapequation/alluvial/commit/560dd8b508f47f7daaecacc31ddf238775426f2d))
+* Tweak citation appearance and add preprint ([69e65e9](https://github.com/mapequation/alluvial/commit/69e65e98a23fa67972683b461a9dc856383a470e))
+
 ## [1.14.0](https://github.com/mapequation/alluvial-generator/compare/v1.13.0...v1.14.0) (2022-06-20)
 
 
