@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.15.0](https://github.com/mapequation/alluvial/compare/v1.14.2...v1.15.0) (2026-10-09)
+
+
+### Features
+
+* Make the `@mapequation/alluvial-diagram` package usable by other apps: `DiagramStore` loads and colours networks on its own, takes default options, and exports the colour schemes, `saveSvg` and `style.css`. `DiagramView` gets `centerVertically` and `minMargin` props ([#45](https://github.com/mapequation/alluvial/issues/45))
+
+
+### Bug Fixes
+
+* Restore the diagram styles (hover outline and cursors) that were missing in the web app since the library split ([#45](https://github.com/mapequation/alluvial/issues/45))
+* Show app version again by moving .env into apps/web ([9cc8ced](https://github.com/mapequation/alluvial/commit/9cc8ced583d1fe3cebe25cacfd049b7fe40e84d6))
+* Publish `@mapequation/alluvial-diagram` under the repository's MIT license ([#45](https://github.com/mapequation/alluvial/issues/45))
+
 ### [1.14.2](https://github.com/mapequation/alluvial/compare/v1.14.1...v1.14.2) (2026-10-09)
 
 

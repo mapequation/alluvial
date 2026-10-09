@@ -1,5 +1,19 @@
-import FileSaver from "file-saver";
+// Trigger a browser download of `blob` (what FileSaver.saveAs does in
+// browsers that support the `download` attribute).
+function saveBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 40_000);
+}
 
+/**
+ * Download the SVG rendered by `DiagramView` as a standalone file, sized to
+ * fit the whole diagram (pan/zoom is reset in the exported copy).
+ */
 export function saveSvg(svg: SVGSVGElement, filename: string) {
   const width = svg.getAttribute("width")!;
   const height = svg.getAttribute("height")!;
@@ -110,5 +124,5 @@ export function saveSvg(svg: SVGSVGElement, filename: string) {
   });
 
   const blob = new Blob([string], { type: "image/svg+xml;charset=utf-8" });
-  FileSaver.saveAs(blob, filename);
+  saveBlob(blob, filename);
 }

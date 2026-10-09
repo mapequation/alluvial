@@ -2,7 +2,7 @@ import { NativeSelect } from "@chakra-ui/react";
 import { observer } from "mobx-react";
 import { useContext } from "react";
 import { StoreContext } from "../../store";
-import { SCHEME_GROUPS, SchemeName } from "../../store/schemes";
+import { SCHEME_GROUPS, SchemeName } from "@mapequation/alluvial-diagram";
 
 type Props = React.ComponentProps<typeof NativeSelect.Root>;
 

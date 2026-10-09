@@ -1,7 +1,7 @@
 import { observer } from "mobx-react";
 import { useContext } from "react";
 import { MdFileDownload } from "react-icons/md";
-import { saveSvg } from "../../io/save-svg";
+import { saveSvg } from "@mapequation/alluvial-diagram";
 import { StoreContext } from "../../store";
 import { ListItemButton, ListItemHeader } from "./components";
 import { SidebarContext } from "./Sidebar";

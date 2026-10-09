@@ -20,38 +20,34 @@ npm install react react-dom mobx mobx-react framer-motion
 
 - **Data + layout**: `Diagram`, `Network`, `Module`, `LeafNode`, `Branch`, `StreamlineLink`, `HighlightGroup`.
 - **File parsers**: `parseAcceptedFiles`, `fetchScienceData`, `setIdentifiers`, `getLocalStorageFiles`, `calcStatistics`, `mergeMultilayerFiles`, `expandMultilayerFile`.
-- **State controller**: `DiagramStore` (MobX observable) — extend it for app-specific state.
+- **State controller**: `DiagramStore` (MobX observable) — loads networks, lays them out and colors them; extend it for app-specific state.
+- **Color schemes**: `COLOR_SCHEMES`, `SCHEME_GROUPS` (d3, seaborn, matplotlib and C3 palettes).
 - **React renderer**: `<DiagramView>` — an SVG component reading from a `DiagramStore` via context.
+- **Export**: `saveSvg(svgElement, filename)` downloads the rendered diagram as an SVG file.
 
 ## Quick start
 
-Read partition files, build a store, render the diagram:
+Read partition files, load them into a store, render the diagram:
 
 ```tsx
 import {
-  Diagram,
   DiagramStore,
   DiagramView,
   parseAcceptedFiles,
 } from "@mapequation/alluvial-diagram";
+import "@mapequation/alluvial-diagram/style.css";
 import { observer } from "mobx-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const ACCEPTED = ["tree", "ftree", "stree", "clu", "net", "json", "zip"];
 const store = new DiagramStore();
 
 export default observer(function App({ files }: { files: File[] }) {
-  const [ready, setReady] = useState(false);
-
   useEffect(() => {
-    parseAcceptedFiles(files, [], ACCEPTED, "id").then(([parsed]) => {
-      store.diagram = new Diagram(parsed);
-      store.updateLayout();
-      setReady(true);
-    });
+    parseAcceptedFiles(files, [], ACCEPTED, store.identifier).then(
+      ([networks]) => store.setNetworks(networks)
+    );
   }, [files]);
-
-  if (!ready) return null;
 
   return (
     <DiagramView
@@ -61,6 +57,16 @@ export default observer(function App({ files }: { files: File[] }) {
     />
   );
 });
+```
+
+`setNetworks(networks, selectLargest = true)` builds the diagram, lays it out and selects the largest module in the leftmost network. Before any networks are loaded the store is empty and `updateLayout()` is a no-op, so it is safe to render `<DiagramView>` and call setters right away.
+
+### Styles
+
+Import the stylesheet once (it sets cursors and the module hover outline):
+
+```ts
+import "@mapequation/alluvial-diagram/style.css";
 ```
 
 `<DiagramView>` is keyboard-aware out of the box:
@@ -75,36 +81,60 @@ export default observer(function App({ files }: { files: File[] }) {
 | Mouse wheel     | Zoom                                |
 | Drag            | Pan                                 |
 
-## Extending `DiagramStore`
+## Store options
 
-`DiagramStore` owns everything the renderer reads — layout parameters, selection, highlight colors, font sizes, hierarchical-module display, etc. Subclass it to add app-specific state (file management, color schemes, metadata-driven coloring):
+Pass initial settings to the constructor. Every layout/display setting on the store can be given here (`identifier`, `height`, `moduleWidth`, `sortModulesBy`, `showModuleId`, `fontSize`, …), plus `colorScheme`, a key of `COLOR_SCHEMES`. Defaults: `identifier: "id"`, `colorScheme: "C3 Sinebow"`, `showModuleId: false`.
 
 ```ts
-import {
-  DiagramStore,
-  Diagram,
-  NetworkFile,
-} from "@mapequation/alluvial-diagram";
+const store = new DiagramStore({
+  identifier: "name",
+  colorScheme: "C3 Turbo",
+  showModuleId: true,
+});
+```
+
+## Extending `DiagramStore`
+
+Subclass it to add app-specific state. Set the store's own defaults through `super(options)` — don't redeclare its fields in the subclass, since subclass field initializers run after the base class has made them observable:
+
+```ts
+import { DiagramStore } from "@mapequation/alluvial-diagram";
 import { action, makeObservable, observable } from "mobx";
 
-const palette = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3"];
-
 export class AppStore extends DiagramStore {
-  files: NetworkFile[] = [];
+  query = "";
 
   constructor() {
-    super();
-    this.highlightColors = [...palette];
-    makeObservable(this, { files: observable.ref });
+    super({ identifier: "name", colorScheme: "C3 Turbo" });
+    makeObservable(this, { query: observable });
   }
 
-  setFiles = action((files: NetworkFile[]) => {
-    this.files = files;
-    this.setSelectedModule(null);
-    this.diagram = new Diagram(files);
-    this.updateLayout();
+  setQuery = action((query: string) => {
+    this.query = query;
   });
 }
+```
+
+Components rendered inside `<DiagramView>` can read the store with `useDiagramStore()`; it is provided through `DiagramStoreContext`.
+
+## Coloring
+
+Coloring operations pick colors from the selected scheme (`store.setSelectedScheme("Tableau10")`, current palette in `store.selectedScheme`):
+
+```ts
+store.colorNodesInModulesInAllNetworks(undefined); // color by modules in the first network
+store.colorMatchingModulesInAllNetworks();
+store.colorModuleIdsInAllNetworks();
+store.colorModule(module, "#e41a1c");
+store.colorNodesInModule(module, "#e41a1c");
+store.colorSelectedNodes(leafNodes, "#e41a1c");
+store.colorByLayer();
+store.colorByPhysicalId();
+store.colorCategoricalMetadata(name, colorByValue);
+store.colorRealMetadata(name, bins); // bins: { x0, x1, color }[]
+store.clearColors();
+
+store.getHighlightColor(group.highlightIndex); // color of a highlight group
 ```
 
 ## Loading data
@@ -120,15 +150,18 @@ import {
 } from "@mapequation/alluvial-diagram";
 
 const exampleFiles = await fetchScienceData();
-store.setFiles(exampleFiles);
+store.setNetworks(exampleFiles);
 
 const [uploaded, errors] = await parseAcceptedFiles(
   fileList,
-  store.files,
+  store.networks, // already loaded files, used to avoid duplicate ids
   ["tree", "ftree", "stree", "clu", "net", "json", "zip"],
   "id",
 );
+store.setNetworks([...store.networks, ...uploaded]);
 ```
+
+`store.networks` holds the files the current diagram was built from. `moveNetwork` reorders them and writes module names, colors and expanded modules back to them.
 
 Supported input formats: `tree`, `ftree`, `stree`, `clu`, `net`, `json`, and `zip` of any of the above.
 
@@ -157,7 +190,7 @@ The renderer ships **no tooltip styling** — it exposes a render-prop slot so c
 
 ## Sizing & layout
 
-`<DiagramView>` doesn't read `window` — pass `width`/`height` from a `ResizeObserver`, parent container, or `window.innerWidth`. Use `offsetX` / `offsetY` to bias the auto-centering (e.g. to leave room for a sidebar):
+`<DiagramView>` doesn't read `window` — pass `width`/`height` from a `ResizeObserver`, parent container, or `window.innerWidth`. The diagram is centered horizontally and placed a third of the free space from the top, at least `minMargin` (default 100) px from the left and top edges. Use `offsetX` / `offsetY` to bias the placement (e.g. to leave room for a sidebar):
 
 ```tsx
 <DiagramView
@@ -166,6 +199,20 @@ The renderer ships **no tooltip styling** — it exposes a render-prop slot so c
   height={containerHeight}
   offsetX={-sidebarWidth / 2}
 />
+```
+
+In a fixed-size box, center on both axes with a small margin:
+
+```tsx
+<DiagramView store={store} width={900} height={500} centerVertically minMargin={10} />
+```
+
+To export the rendered diagram, pass the `<svg>` (default `id="alluvialSvg"`) to `saveSvg`:
+
+```ts
+import { saveSvg } from "@mapequation/alluvial-diagram";
+
+saveSvg(document.getElementById("alluvialSvg") as unknown as SVGSVGElement, "diagram.svg");
 ```
 
 Layout parameters (`moduleWidth`, `streamlineFraction`, `flowThreshold`, `verticalAlign`, `moduleSize`, `sortModulesBy`, …) live on `DiagramStore` as observables — change them through their setters and the renderer re-layouts:
@@ -185,6 +232,8 @@ type DiagramViewProps = {
   height: number;
   offsetX?: number;
   offsetY?: number;
+  centerVertically?: boolean; // default false: a third of the free space from the top
+  minMargin?: number; // default 100
   renderTooltip?: (props: {
     module: Module;
     fillColor: (group: { highlightIndex: number; insignificant: boolean }) => string;

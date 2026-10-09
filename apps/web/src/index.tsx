@@ -1,3 +1,4 @@
+import "@mapequation/alluvial-diagram/style.css";
 import { createRoot } from "react-dom/client";
 import App from "./components/App";
 import { Provider } from "./components/ui/provider";
