@@ -32,11 +32,11 @@ jobs:
 
       - run: npm run build
 
-      - run: touch build/.nojekyll
+      - run: touch apps/web/build/.nojekyll
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build
+          path: apps/web/build
 
   deploy:
     needs: build

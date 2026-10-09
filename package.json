@@ -1,55 +1,23 @@
 {
-  "name": "alluvial",
+  "name": "alluvial-monorepo",
   "version": "1.14.1",
   "private": true,
   "type": "module",
-  "dependencies": {
-    "@chakra-ui/react": "^3.35.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mapequation/c3": "^1.1.1",
-    "@mapequation/infomap": "^2.10.1",
-    "@mapequation/infomap-parser": "^1.0.2",
-    "@mapequation/infomap-react": "^1.0.0",
-    "@tanstack/react-table": "^8.21.3",
-    "d3": "^7.9.0",
-    "file-saver": "^2.0.5",
-    "framer-motion": "^12.38.0",
-    "jszip": "^3.10.1",
-    "localforage": "^1.10.0",
-    "mobx-react": "^9.2.1",
-    "next-themes": "^0.4.6",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "react-dropzone": "^15.0.0",
-    "react-icons": "^5.6.0",
-    "recharts": "^3.8.1",
-    "title-case": "^4.3.2"
-  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "release": "standard-version"
+    "dev": "npm run dev -w apps/web",
+    "build:lib": "npm run build -w @mapequation/alluvial-diagram",
+    "build:app": "npm run build -w apps/web",
+    "build": "npm run build:lib && npm run build:app",
+    "preview": "npm run preview -w apps/web",
+    "test": "npm run test -w @mapequation/alluvial-diagram && npm run test -w apps/web",
+    "test:watch": "npm run test:watch -w apps/web"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/d3": "^7.1.0",
-    "@types/file-saver": "^2.0.5",
-    "@types/node": "^25.8.0",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.0.5",
-    "jsdom": "^25.0.1",
-    "playwright": "^1.60.0",
     "prettier": "^2.4.1",
-    "standard-version": "^9.3.2",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.13",
-    "vitest": "^3.2.4"
+    "typescript": "^6.0.3"
   }
 }
