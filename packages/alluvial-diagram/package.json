@@ -1,8 +1,14 @@
 {
   "name": "@mapequation/alluvial-diagram",
-  "version": "1.14.2",
+  "version": "1.15.0",
   "description": "Interactive alluvial diagram visualization for hierarchical networks.",
-  "license": "AGPL-3.0-or-later",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapequation/alluvial.git",
+    "directory": "packages/alluvial-diagram"
+  },
+  "homepage": "https://github.com/mapequation/alluvial/tree/master/packages/alluvial-diagram#readme",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -22,6 +28,7 @@
   ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest"
   },
