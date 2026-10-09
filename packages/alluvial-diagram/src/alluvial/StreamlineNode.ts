@@ -20,7 +20,8 @@ export default class StreamlineNode extends AlluvialNodeBase<LeafNode, Branch> {
     this.side = parent.side;
     const [source, target] = id.split("--");
     this.sourceId = source;
-    this.targetId = target;
+    // Dangling ids have no "--target" part
+    this.targetId = target ?? null;
   }
 
   get numLeafNodes(): number {
