@@ -18,6 +18,7 @@ export interface LayoutOpts {
   height: number;
   streamlineFraction: number;
   moduleWidth: number;
+  // Fraction of each network's flow to hide, starting with the smallest modules
   flowThreshold: number;
   verticalAlign: VerticalAlign;
   marginExponent: number;
@@ -149,6 +150,10 @@ export default class Diagram extends AlluvialNodeBase<Network> {
     this.width = totalWidth;
     this.height = height;
     this.flowThreshold = flowThreshold;
+
+    for (let network of this.children) {
+      network.updateFlowThreshold(flowThreshold);
+    }
 
     let x = 0;
     let y = height;
