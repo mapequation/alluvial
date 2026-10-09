@@ -35,6 +35,11 @@ export {
   DiagramStoreContext,
   useDiagramStore,
 } from "./store/DiagramStore";
+export type { DiagramStoreOptions, HistogramBin } from "./store/DiagramStore";
+
+// Color schemes
+export { COLOR_SCHEMES, SCHEME_GROUPS } from "./schemes";
+export type { ColorScheme, SchemeName } from "./schemes";
 
 // React renderer
 export { DiagramView } from "./react";
@@ -44,3 +49,4 @@ export type { DiagramViewProps, RenderTooltip } from "./react";
 export { default as TreePath } from "./utils/TreePath";
 export { default as highlightColor } from "./utils/highlight-color";
 export { clamp, normalize } from "./utils/math";
+export { saveSvg } from "./utils/save-svg";

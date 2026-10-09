@@ -23,6 +23,13 @@ export type DiagramViewProps = {
   height: number;
   offsetX?: number;
   offsetY?: number;
+  /**
+   * Center the diagram vertically in the view. By default it is placed a third
+   * of the free space from the top.
+   */
+  centerVertically?: boolean;
+  /** Minimum distance in px from the left and top edges (default 100). */
+  minMargin?: number;
   renderTooltip?: RenderTooltip;
   className?: string;
   id?: string;
@@ -37,6 +44,8 @@ const DiagramSvg = observer(function DiagramSvg({
   height,
   offsetX = 0,
   offsetY = 0,
+  centerVertically = false,
+  minMargin = 100,
   className,
   id = "alluvialSvg",
 }: DiagramSvgProps) {
@@ -90,8 +99,12 @@ const DiagramSvg = observer(function DiagramSvg({
 
   const maxDropShadowModuleLevel = 3;
 
-  const x = Math.max((width - diagram.width) / 2, 100) + offsetX;
-  const y = Math.max((height - diagram.height) / 3, 100) + offsetY;
+  const x = Math.max((width - diagram.width) / 2, minMargin) + offsetX;
+  const y =
+    Math.max(
+      (height - diagram.height) / (centerVertically ? 2 : 3),
+      minMargin
+    ) + offsetY;
 
   return (
     <svg

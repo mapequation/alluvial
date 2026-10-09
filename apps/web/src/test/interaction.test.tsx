@@ -31,7 +31,7 @@ function loadScienceNetworks() {
 function renderApp() {
   const files = loadScienceNetworks();
   const store = new Store();
-  store.setFiles(files);
+  store.setNetworks(files);
   return {
     store,
     ...render(
@@ -95,6 +95,6 @@ describe("interaction", () => {
     expect(loadExampleBtn.length).toBeGreaterThan(0);
 
     // Use store too for a more direct assertion.
-    expect(store.files.length).toBeGreaterThan(0);
+    expect(store.networks.length).toBeGreaterThan(0);
   });
 });

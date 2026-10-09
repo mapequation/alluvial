@@ -53,7 +53,7 @@ export default observer(function LoadNetworks({ onClose }: Props) {
   );
   const [state, dispatch] = useReducer(reducer, initialState, (state) => ({
     ...state,
-    files: store.files,
+    files: store.networks,
   }));
 
   const { files } = state;
@@ -100,7 +100,7 @@ export default observer(function LoadNetworks({ onClose }: Props) {
 
   const createDiagram = useCallback(() => {
     dispatch({ type: "set", payload: { isCreatingDiagram: true } });
-    store.setFiles(files);
+    store.setNetworks(files);
     onClose();
   }, [onClose, files, store]);
 
@@ -117,7 +117,7 @@ export default observer(function LoadNetworks({ onClose }: Props) {
       // never want to flash the Create Diagram spinner on a click the user
       // didn't make.
       setTimeout(() => {
-        store.setFiles(files);
+        store.setNetworks(files);
         onClose();
         // Reset local loading state once the diagram is built. LoadNetworks
         // is not unmounted when the dialog closes (DialogRoot keeps it

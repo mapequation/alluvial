@@ -8,6 +8,8 @@ export default defineConfig({
       entry: "src/index.ts",
       formats: ["es"],
       fileName: "index",
+      // Shipped as "@mapequation/alluvial-diagram/style.css"
+      cssFileName: "style",
     },
     sourcemap: true,
     rollupOptions: {

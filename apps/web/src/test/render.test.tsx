@@ -29,10 +29,10 @@ function loadScienceNetworks() {
 }
 
 describe("Diagram rendering", () => {
-  it("renders at least one g.module per network after Store.setFiles", () => {
+  it("renders at least one g.module per network after Store.setNetworks", () => {
     const files = loadScienceNetworks();
     const store = new Store();
-    store.setFiles(files);
+    store.setNetworks(files);
 
     const { container } = render(
       <Provider enableSystem defaultTheme="light">

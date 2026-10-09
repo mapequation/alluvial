@@ -49,10 +49,10 @@ describe("data flow", () => {
     }
   });
 
-  it("Store.setFiles propagates flow so modules become visible", () => {
+  it("Store.setNetworks propagates flow so modules become visible", () => {
     const files = loadScienceNetworks();
     const store = new Store();
-    store.setFiles(files);
+    store.setNetworks(files);
 
     expect(store.diagram.children).toHaveLength(4);
     for (const network of store.diagram.children) {
