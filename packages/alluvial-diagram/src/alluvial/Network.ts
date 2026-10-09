@@ -39,6 +39,7 @@ export default class Network extends AlluvialNodeBase<Module, Diagram> {
   readonly depth = NETWORK;
   name: string;
   isCustomSorted = false;
+  flowThreshold = 0; // Modules with less flow are hidden
   readonly originalId: string | undefined;
   readonly layerId: number | undefined; // When representing each layer as a network
   readonly codelength: number;
@@ -244,8 +245,24 @@ export default class Network extends AlluvialNodeBase<Module, Diagram> {
     return root;
   }
 
-  get flowThreshold() {
-    return this.parent?.flowThreshold ?? 0;
+  // Hide the smallest modules that together hold at most
+  // hiddenFlowFraction of the network flow.
+  updateFlowThreshold(hiddenFlowFraction: number) {
+    const maxHiddenFlow = hiddenFlowFraction * this.flow;
+    const flows = this.children
+      .map((module) => module.flow)
+      .sort((a, b) => a - b);
+
+    let hiddenFlow = 0;
+    this.flowThreshold = Infinity;
+
+    for (const flow of flows) {
+      hiddenFlow += flow;
+      if (hiddenFlow > maxHiddenFlow) {
+        this.flowThreshold = flow;
+        break;
+      }
+    }
   }
 
   static create(parent: Diagram, network: NetworkFile) {
